@@ -1,37 +1,39 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { RegisterPage } from '../pages/RegisterPage';
+import { NavBar } from '../pages/NavBar';
 
 test.describe('Authentication', () => {
   test('login page renders the sign-in form', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
-    await expect(page.getByPlaceholder('Email')).toBeVisible();
-    await expect(page.getByPlaceholder('Password')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+    await expect(loginPage.heading).toBeVisible();
+    await expect(loginPage.emailInput).toBeVisible();
+    await expect(loginPage.passwordInput).toBeVisible();
+    await expect(loginPage.submitButton).toBeVisible();
   });
 
   test('login with invalid credentials shows an error', async ({ page }) => {
-    await page.goto('/login');
+    const loginPage = new LoginPage(page);
+    await loginPage.goto();
 
-    await page.getByPlaceholder('Email').fill('nobody@example.com');
-    await page.getByPlaceholder('Password').fill('wrong-password');
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await loginPage.login('nobody@example.com', 'wrong-password');
 
-    await expect(page.locator('.error-messages li')).toBeVisible();
+    await expect(loginPage.errorMessages).toBeVisible();
     await expect(page).toHaveURL(/\/login/);
   });
 
   test('a new user can register and is signed in', async ({ page }) => {
-    const id = Date.now();
-    const username = `qa_${id}`;
+    const username = `qa_${Date.now()}`;
+    const registerPage = new RegisterPage(page);
+    const nav = new NavBar(page);
+    await registerPage.goto();
 
-    await page.goto('/register');
-    await page.getByPlaceholder('Username').fill(username);
-    await page.getByPlaceholder('Email').fill(`${username}@example.com`);
-    await page.getByPlaceholder('Password').fill('Passw0rd!123');
-    await page.getByRole('button', { name: 'Sign up' }).click();
+    await registerPage.register(username, `${username}@example.com`, 'Passw0rd!123');
 
     await expect(page).toHaveURL('/');
-    await expect(page.getByRole('link', { name: username })).toBeVisible();
+    await expect(nav.userLink(username)).toBeVisible();
+    await expect(nav.signInLink).toBeHidden();
   });
 });
