@@ -1,0 +1,41 @@
+{
+  "name": "conduit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Example Node (Express + Knex) codebase containing real world examples that adheres to the RealWorld API spec",
+  "main": "index.js",
+  "scripts": {
+    "start": "turbo start",
+    "start:ci": "turbo start:ci",
+    "build": "turbo build",
+    "test": "turbo test --parallel",
+    "test:coverage": "turbo test:coverage --parallel",
+    "check-types": "turbo check-types",
+    "dev": "turbo dev --filter=@conduit/local",
+    "deploy": "cd ./infra && yarn deploy",
+    "clean": "./scripts/clean.sh",
+    "merge-coverage": "istanbul-merge --out .nyc_output/coverage.json ./**/**/coverage/coverage-final.json && nyc report --reporter=lcov --reporter=text",
+    "prettify": "turbo prettify",
+    "lint": "turbo lint",
+    "lint:fix": "turbo lint:fix",
+    "db:migrate": "turbo db:migrate",
+    "spell-check": "cspell \"**\" --no-progress"
+  },
+  "author": {
+    "name": "Ken Yip",
+    "email": "ken20206@gmail.com",
+    "url": "https://kenyip.cc"
+  },
+  "license": "ISC",
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "cspell": "^8.15.2",
+    "istanbul-merge": "^2.0.0",
+    "nyc": "^17.1.0",
+    "turbo": "^2.2.3"
+  }
+}

@@ -1,0 +1,60 @@
+name: newsclip
+
+services:
+  server:
+    container_name: newsclip-api
+    build:
+      context: .
+      dockerfile: ./apps/local/Dockerfile
+    ports:
+      - "3100:3100"
+    command: node apps/local/local.js
+    environment:
+      - NODE_ENV=develop
+      - MODE=local
+      - DOMAIN=localhost
+      - AUTH_JWT_SECRET=how-do-you-turn-this-on-in-2024
+      - AUTH_JWT_EXPIRES_IN=1d
+      - DATABASE_HOST=newsclip-mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=conduit
+      - DATABASE_PASSWORD=how-do-you-turn-this-on-twice
+      - DATABASE_NAME=conduit-local
+    depends_on:
+      mysql:
+        condition: service_healthy
+      db-migration:
+        condition: service_completed_successfully
+
+  mysql:
+    image: mysql:8.0
+    container_name: newsclip-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: how-do-you-turn-this-on 
+      MYSQL_DATABASE: conduit-local        
+      MYSQL_USER: conduit
+      MYSQL_PASSWORD: how-do-you-turn-this-on-twice      
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  db-migration:
+    container_name: newsclip-db-migration
+    command: ["sh", "-c", "cd /app/packages/core && NODE_CONFIG_DIR=/app/config yarn knex migrate:latest --knexfile ./database/knex/knexfile"]
+    build:
+      context: .
+      dockerfile: ./packages/core/database/Dockerfile
+    environment:
+      - NODE_ENV=develop
+      - DATABASE_HOST=newsclip-mysql
+      - DATABASE_PORT=3306
+      - DATABASE_USER=conduit
+      - DATABASE_PASSWORD=how-do-you-turn-this-on-twice
+      - DATABASE_NAME=conduit-local
+    depends_on:
+      mysql:
+        condition: service_healthy
