@@ -157,3 +157,6 @@ __pycache__/
 # Secrets and test output
 playwright-report/
 test-results/
+
+# macOS
+.DS_Store
