@@ -50,7 +50,7 @@ Tests follow a pyramid: most coverage at the API level, fewer UI end-to-end test
 | Level | Tool | Location | Focus |
 |---|---|---|---|
 | API | pytest + requests; Postman/Newman | `api-tests/` | Every endpoint: happy path, validation (422), auth (401/403), not found (404), conflicts (409). Authorization between users. Pagination and filters. |
-| UI E2E | Playwright (chromium, firefox, webkit) | `ui-tests/` | Critical user journeys. Page Object Model. State set up through the API where possible. |
+| UI E2E | Playwright (Chromium only for now) | `ui-tests/` | Critical user journeys. Page Object Model. State set up through the API where possible. |
 | Data | SQL | `sql/` | Orphaned rows, duplicate slug/email/username, favorite counts vs. favorites table, cascade deletes. |
 | Non-functional | Manual + Playwright | `ui-tests/`, `docs/` | XSS via markdown/comments, JWT expiry/tampering, basic accessibility, one mobile viewport. |
 | AI/LLM eval | Rubric + runner | `ai-tests/` | Evaluate LLM-generated test cases or bug reports against a scoring rubric (optional). |
@@ -85,7 +85,7 @@ Equivalence partitioning and boundary values (field lengths, page limits), state
 | Frontend | http://localhost:8080 (Vite dev server) |
 | API | http://localhost:3100/api |
 | Database | MySQL 8.0 in Docker (`conduit-local`), migrated with knex |
-| Browsers | Chromium, Firefox, WebKit (Playwright latest) |
+| Browsers | Chromium (Playwright latest). Firefox and WebKit are configured out to keep CI fast; they can be re-added as extra `projects` in `playwright.config.ts`. |
 | CI | GitHub Actions (ubuntu-latest) |
 | Config | `.env` from `.env.example` (`BASE_URL`, `API_URL`, `API_TOKEN`, `LLM_API_KEY`) |
 
@@ -111,21 +111,21 @@ Status: ✅ done, 🟡 partial, ⬜ not started. Priority: P1 critical, P2 impor
 |---|---|---|---|---|---|---|
 | F1 | Register | P1 | ⬜ | ✅ happy path | ⬜ | 🟡 |
 | F2 | Login (valid/invalid) | P1 | 🟡 (Postman) | ✅ | ⬜ | 🟡 |
-| F3 | Logout / session persistence | P1 | n/a | ⬜ | n/a | ⬜ |
-| F4 | Route guards (`/settings`, `/editor`, following feed) | P1 | 🟡 | ⬜ | n/a | ⬜ |
-| F5 | Update user settings | P2 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F6 | Create article | P1 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F7 | Edit article (author only) | P1 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F8 | Delete article (author only) | P1 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F9 | Global feed + pagination | P1 | 🟡 | ⬜ | n/a | ⬜ |
-| F10 | Filter by tag / author / favorited | P2 | 🟡 | ⬜ | n/a | ⬜ |
-| F11 | Following feed | P2 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F12 | Favorite / unfavorite | P2 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F13 | Follow / unfollow | P2 | 🟡 | ⬜ | ⬜ | ⬜ |
-| F14 | Comments (add/list/delete) | P2 | 🟡 | ⬜ | ⬜ | ⬜ |
+| F3 | Logout / session persistence | P1 | n/a | ✅ | n/a | ✅ |
+| F4 | Route guards (`/settings`, `/editor`, following feed) | P1 | 🟡 | ✅ | n/a | 🟡 |
+| F5 | Update user settings | P2 | 🟡 | 🟡 bio, password, duplicate email; empty-field save blocked by [BUG-002](bugs/BUG-002.md) | ⬜ | 🟡 |
+| F6 | Create article | P1 | 🟡 | ✅ happy path + missing title | ⬜ | 🟡 |
+| F7 | Edit article (author only) | P1 | 🟡 | ✅ edit; non-author sees no controls | ⬜ | 🟡 |
+| F8 | Delete article (author only) | P1 | 🟡 | ✅ delete; non-author sees no controls | ⬜ | 🟡 |
+| F9 | Global feed + pagination | P1 | 🟡 | 🟡 page 1 ✅, page 2 blocked by [BUG-001](bugs/BUG-001.md) | n/a | 🟡 |
+| F10 | Filter by tag / author / favorited | P2 | 🟡 | ✅ tag, author (profile) and favorited (profile) | n/a | ✅ |
+| F11 | Following feed | P2 | 🟡 | ✅ empty state + followed author's article | ⬜ | ✅ |
+| F12 | Favorite / unfavorite | P2 | 🟡 | ✅ toggle, persistence, profile list, signed-out redirect | ⬜ | ✅ |
+| F13 | Follow / unfollow | P2 | 🟡 | 🟡 profile page ✅; article page blocked by [BUG-003](bugs/BUG-003.md) | ⬜ | 🟡 |
+| F14 | Comments (add/list/delete) | P2 | 🟡 | ✅ add, empty rejected, delete own, others read-only, signed-out prompt | ⬜ | ✅ |
 | F15 | Tags list | P3 | 🟡 | ⬜ | n/a | ⬜ |
-| F16 | Profile pages | P3 | 🟡 | ⬜ | n/a | ⬜ |
-| F17 | Markdown rendering / XSS sanitisation | P1 | n/a | ⬜ | n/a | ⬜ |
+| F16 | Profile pages | P3 | 🟡 | 🟡 author articles, favorites, follow button, bio | n/a | 🟡 |
+| F17 | Markdown rendering / XSS sanitisation | P1 | n/a | 🟡 article body only (not titles/comments) | n/a | 🟡 |
 
 "🟡 (Postman)" refers to the upstream collection in `app-under-test/api/tests/integration/`; it will be reviewed and replaced or extended by tests in `api-tests/`.
 

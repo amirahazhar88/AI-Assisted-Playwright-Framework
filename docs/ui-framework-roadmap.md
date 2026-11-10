@@ -14,7 +14,7 @@ A reference for how the Playwright framework in `ui-tests/` is built, step by st
 | 3 | Fixtures | ✅ Done (not yet committed) |
 | 4 | API-based setup | ✅ Done (not yet committed) |
 | 5 | Test data factory | ✅ Done (not yet committed) |
-| 6 | Feature coverage | ⬜ Not started |
+| 6 | Feature coverage | 🟡 P1 and P2 done (not yet committed); P3 (tags list, profile polish) remaining. 4 bugs logged in `docs/bugs/` |
 | 7 | CI | 🟡 Workflow moved to root, not yet proven green |
 | 8 | Docs | 🟡 Test plan drafted, README partly done |
 
@@ -188,8 +188,7 @@ cd app-under-test/web && npm run serve
 
 # run the tests
 cd ui-tests
-npx playwright test                          # all browsers
-npx playwright test --project=chromium       # one browser
+npx playwright test                          # Chromium (the only configured browser)
 npx playwright test --ui                     # interactive mode
 npx playwright show-report                   # open the last HTML report
 ```
