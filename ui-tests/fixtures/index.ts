@@ -52,7 +52,13 @@ export const test = base.extend<Pages & Api>({
 
   authedPage: async ({ page, user }, use) => {
     // The app reads its JWT from localStorage on load, so plant it before any page script runs.
-    await page.addInitScript((token) => window.localStorage.setItem('jwtToken', token), user.token);
+    // Init scripts re-run on every full page load, so a sessionStorage flag makes this happen only
+    // once per tab. Otherwise a reload after logout would silently sign the user back in.
+    await page.addInitScript((token) => {
+      if (window.sessionStorage.getItem('authSeeded')) return;
+      window.localStorage.setItem('jwtToken', token);
+      window.sessionStorage.setItem('authSeeded', '1');
+    }, user.token);
     await use(page);
   },
 
