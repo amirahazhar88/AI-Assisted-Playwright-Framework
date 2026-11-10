@@ -1,11 +1,8 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { NavBar } from '../pages/NavBar';
+import { test, expect } from '../fixtures';
+import { buildUser } from '../test-data/factory';
 
 test.describe('Authentication', () => {
-  test('login page renders the sign-in form', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test('login page renders the sign-in form', async ({ loginPage }) => {
     await loginPage.goto();
 
     await expect(loginPage.heading).toBeVisible();
@@ -14,8 +11,7 @@ test.describe('Authentication', () => {
     await expect(loginPage.submitButton).toBeVisible();
   });
 
-  test('login with invalid credentials shows an error', async ({ page }) => {
-    const loginPage = new LoginPage(page);
+  test('login with invalid credentials shows an error', async ({ page, loginPage }) => {
     await loginPage.goto();
 
     await loginPage.login('nobody@example.com', 'wrong-password');
@@ -24,13 +20,11 @@ test.describe('Authentication', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test('a new user can register and is signed in', async ({ page }) => {
-    const username = `qa_${Date.now()}`;
-    const registerPage = new RegisterPage(page);
-    const nav = new NavBar(page);
+  test('a new user can register and is signed in', async ({ page, registerPage, nav }) => {
+    const { username, email, password } = buildUser();
     await registerPage.goto();
 
-    await registerPage.register(username, `${username}@example.com`, 'Passw0rd!123');
+    await registerPage.register(username, email, password);
 
     await expect(page).toHaveURL('/');
     await expect(nav.userLink(username)).toBeVisible();
