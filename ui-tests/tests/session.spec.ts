@@ -35,4 +35,26 @@ test.describe('Signed-in session (set up through the API)', () => {
     await expect(nav.signInLink).toBeVisible();
     await expect(nav.userLink(user.username)).toBeHidden();
   });
+
+  test('a session survives a page reload', { tag: '@smoke' }, async ({ authedPage, user, nav }) => {
+    await authedPage.goto('/');
+    await authedPage.reload();
+
+    await expect(nav.userLink(user.username)).toBeVisible();
+  });
+
+  test('logging out clears the session', { tag: '@smoke' }, async ({
+    authedPage,
+    settingsPage,
+    nav,
+    user,
+  }) => {
+    await settingsPage.goto();
+    await settingsPage.logout();
+
+    await expect(authedPage).toHaveURL('/');
+    await expect(nav.signInLink).toBeVisible();
+    await expect(nav.userLink(user.username)).toBeHidden();
+    expect(await authedPage.evaluate(() => window.localStorage.getItem('jwtToken'))).toBeNull();
+  });
 });

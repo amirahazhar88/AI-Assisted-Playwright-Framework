@@ -38,9 +38,8 @@ Test automation and AI/LLM evaluation project.
 3. **Tests:**
    ```sh
    cd ui-tests
-   npm ci && npx playwright install
-   npx playwright test                       # all browsers
-   npx playwright test --project=chromium    # one browser
+   npm ci && npx playwright install chromium
+   npx playwright test                       # Chromium (the only configured browser)
    BASE_URL=http://localhost:8080 npx playwright test
    ```
 

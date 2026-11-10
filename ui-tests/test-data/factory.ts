@@ -32,3 +32,12 @@ export function buildArticle(overrides: Partial<NewArticle> = {}): NewArticle {
     ...overrides,
   };
 }
+
+/** A unique tag, handy for isolating a test's articles in a tag-filtered feed. */
+export function buildTag(): string {
+  return `t${uniqueId().replace('_', '')}`;
+}
+
+export function buildComment(): string {
+  return `QA comment ${uniqueId()}`;
+}
