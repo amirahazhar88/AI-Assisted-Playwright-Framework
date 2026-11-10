@@ -53,4 +53,41 @@ export class ApiClient {
       throw new Error(`Delete article failed (${response.status()}): ${await response.text()}`);
     }
   }
+
+  /** True while the article is readable through the API (soft-deleted articles return 404). */
+  async articleExists(slug: string): Promise<boolean> {
+    const response = await this.request.get(`${API_URL}/articles/${slug}`);
+    return response.ok();
+  }
+
+  async follow(token: string, username: string): Promise<void> {
+    await this.send('POST', `/profiles/${username}/follow`, token);
+  }
+
+  async favorite(token: string, slug: string): Promise<void> {
+    await this.send('POST', `/articles/${slug}/favorite`, token);
+  }
+
+  async addComment(token: string, slug: string, body: string): Promise<void> {
+    await this.send('POST', `/articles/${slug}/comments`, token, { comment: { body } });
+  }
+
+  async getCurrentUser(token: string): Promise<{ username: string; email: string; bio: string | null }> {
+    const response = await this.request.get(`${API_URL}/user`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok()) throw new Error(`Get user failed (${response.status()})`);
+    return (await response.json()).user;
+  }
+
+  private async send(method: 'POST', path: string, token: string, data?: unknown): Promise<void> {
+    const response = await this.request.fetch(`${API_URL}${path}`, {
+      method,
+      data,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok()) {
+      throw new Error(`${method} ${path} failed (${response.status()}): ${await response.text()}`);
+    }
+  }
 }

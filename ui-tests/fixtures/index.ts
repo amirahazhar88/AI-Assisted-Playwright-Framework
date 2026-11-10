@@ -2,6 +2,10 @@ import { test as base, Page } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { ArticlePage } from '../pages/ArticlePage';
+import { EditorPage } from '../pages/EditorPage';
+import { HomePage } from '../pages/HomePage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { ProfilePage } from '../pages/ProfilePage';
 import { NavBar } from '../pages/NavBar';
 import { ApiClient, CreatedArticle, RegisteredUser } from '../helpers/api';
 import { buildArticle, buildUser } from '../test-data/factory';
@@ -10,6 +14,10 @@ type Pages = {
   loginPage: LoginPage;
   registerPage: RegisterPage;
   articlePage: ArticlePage;
+  editorPage: EditorPage;
+  homePage: HomePage;
+  settingsPage: SettingsPage;
+  profilePage: ProfilePage;
   nav: NavBar;
 };
 
@@ -22,6 +30,10 @@ type Api = {
   authedPage: Page;
   /** An article written by `user`, created through the API and deleted after the test. */
   article: CreatedArticle;
+  /** A second user (the "other person"), created through the API. */
+  author: RegisteredUser;
+  /** An article written by `author`, deleted after the test. `user` is the reader. */
+  authorArticle: CreatedArticle;
 };
 
 /**
@@ -37,6 +49,18 @@ export const test = base.extend<Pages & Api>({
   },
   articlePage: async ({ page }, use) => {
     await use(new ArticlePage(page));
+  },
+  editorPage: async ({ page }, use) => {
+    await use(new EditorPage(page));
+  },
+  homePage: async ({ page }, use) => {
+    await use(new HomePage(page));
+  },
+  settingsPage: async ({ page }, use) => {
+    await use(new SettingsPage(page));
+  },
+  profilePage: async ({ page }, use) => {
+    await use(new ProfilePage(page));
   },
   nav: async ({ page }, use) => {
     await use(new NavBar(page));
@@ -66,6 +90,16 @@ export const test = base.extend<Pages & Api>({
     const article = await api.createArticle(user.token, buildArticle());
     await use(article);
     await api.deleteArticle(user.token, article.slug); // cleanup after the test
+  },
+
+  author: async ({ api }, use) => {
+    await use(await api.registerUser(buildUser()));
+  },
+
+  authorArticle: async ({ api, author }, use) => {
+    const article = await api.createArticle(author.token, buildArticle());
+    await use(article);
+    await api.deleteArticle(author.token, article.slug); // cleanup after the test
   },
 });
 
