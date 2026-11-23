@@ -73,7 +73,15 @@ In CI the report is attached to every run as the `allure-report` artifact, and p
 ## AI-assisted workflow
 This project was built with Claude Code as a pairing partner, working like a senior colleague: I set the goals and made the decisions, and the assistant wrote code, explained the reasoning, and challenged results.
 
-**What I decided:** the application to test and its rebrand, the tool choices (Playwright, pytest, Allure), which scope to cut (AI evaluation, accessibility, exploratory testing, extra browsers), when to commit, push and merge, and when the repo goes public.
+**What I decided:**
+- The application to test, and its rebrand.
+- The scope: UI, API and SQL tests, run in CI on every pull request.
+- The tools: Playwright, pytest and Allure.
+- What to cut, and why:
+  - AI evaluation, accessibility and exploratory testing, to keep the portfolio focused on the three core layers.
+  - Firefox and WebKit, to keep CI fast. They can be added back as extra projects in the Playwright config.
+
+**What I did myself:** I reviewed every change before it was committed, and I decided whether each failure was an app bug or a test mistake before anything was fixed or logged.
 
 **How the assistant was used:** drafting page objects, fixtures and specs; probing the API to learn real behaviour before writing assertions; investigating failures; drafting bug reports and documents; and reviewing diffs before they were committed.
 
