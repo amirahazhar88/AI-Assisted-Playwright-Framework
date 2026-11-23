@@ -1,6 +1,6 @@
-# qa-portfolio
+# AI-Assisted-Playwright-Automation-Framework
 
-Test automation and AI/LLM evaluation project.
+Test automation playwright framework project.
 
 ## What this project covers
 - UI automation (Playwright)
