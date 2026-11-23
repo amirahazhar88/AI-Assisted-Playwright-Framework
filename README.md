@@ -1,6 +1,6 @@
 # AI-Assisted-Playwright-Automation-Framework
 
-Test automation playwright framework project.
+Test automation playwright framework project: UI (Playwright), API (pytest) and SQL checks, with CI and an Allure report.
 
 ## What this project covers
 - UI automation (Playwright)
